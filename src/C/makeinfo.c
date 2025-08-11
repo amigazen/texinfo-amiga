@@ -87,12 +87,12 @@
 #endif /* !USG && !VMS && !_IBMR2 */
 
 #include <fcntl.h>
-#include <sys/file.h>
+#include "amiga_compat.h"
 
 #if defined (USG) || defined (hpux)
 #define bcopy(source, dest, count) memcpy (dest, source, count)
-char *index (s, c) char *s; { char *strchr (); return strchr (s, c); }
-char *rindex (s, c) char *s; { char *strrchr (); return (strrchr (s, c)); }
+char *index (const char *s, int c) { return strchr (s, c); }
+char *rindex (const char *s, int c) { return strrchr (s, c); }
 #endif /* USG || hpux */
 
 #if defined (__GNUC__)

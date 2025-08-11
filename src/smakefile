@@ -1,0 +1,54 @@
+# SMakefile for texinfo216 makeinfo command
+# Built with SAS/C for Amiga OS
+# Targets: makeinfo (main program)
+
+# Compiler and linker settings
+CC = sc
+LINK = slink
+STRIPDEBUG = STRIPDEBUG
+NODEBUG = NODEBUG
+BATCH = BATCH
+
+# Library settings
+LIBS = lib:sc.lib lib:small.lib
+
+# Compiler flags
+CFLAGS = STRIPDEBUG NODEBUG BATCH IDIR=include: IDIR=.
+
+# Source files for makeinfo
+MAKEINFO_SOURCES = C/makeinfo.c C/getopt.c C/getopt1.c
+MAKEINFO_OBJECTS = makeinfo.o getopt.o getopt1.o
+
+# Default target
+all: makeinfo
+
+# Main makeinfo executable
+makeinfo: $(MAKEINFO_OBJECTS)
+	$(LINK) $(STRIPDEBUG) $(NODEBUG) $(BATCH) FROM $(MAKEINFO_OBJECTS) TO makeinfo LIB $(LIBS)
+
+# Object file compilation rules
+.c.o:
+	$(CC) $(CFLAGS) $<
+
+# Dependencies
+makeinfo.o: C/makeinfo.c C/getopt.h
+getopt.o: C/getopt.c C/getopt.h
+getopt1.o: C/getopt1.c C/getopt.h
+
+# Clean target
+clean:
+	DELETE makeinfo
+	DELETE *.o
+
+# Install target (copy to C:)
+install: makeinfo
+	COPY makeinfo TO SDK/C/makeinfo
+
+# Help target
+help:
+	@echo "Available targets:"
+	@echo "  all      - Build makeinfo executable"
+	@echo "  clean    - Remove object files and executable"
+	@echo "  install  - Install makeinfo to C:"
+	@echo "  help     - Show this help message"
+

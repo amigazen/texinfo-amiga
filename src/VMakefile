@@ -1,0 +1,94 @@
+# VMakefile for texinfo216 makeinfo command
+# Built with vbcc for Amiga using PosixLib
+# Targets: makeinfo (main program)
+
+# VBCC toolchain
+CC = vc
+LINK = vlink
+AR = vcpr
+
+# VBCC configuration with PosixLib 
+CONFIG = +aos68k_posix
+CFLAGS = -c -O1 -D_AMIGA -DHAVE_CONFIG_H -DHAVE_POSIXLIB -DUSG -DNO_INLINE_STDARG -I. -fpu=soft -maxoptpasses=1 -dontkeep-initialized-data -stack-check
+
+# Library settings - using PosixLib 
+CLIBS = -lposix -lamiga -lmieee 
+
+# Source files for makeinfo
+MAKEINFO_SOURCES = C/makeinfo.c C/getopt.c C/getopt1.c amiga_compat.c
+MAKEINFO_OBJECTS = makeinfo.o getopt.o getopt1.o amiga_compat.o
+
+# Default target
+all: makeinfo
+
+# Main makeinfo executable
+makeinfo: $(MAKEINFO_OBJECTS)
+	$(CC) $(CONFIG) -o makeinfo $(MAKEINFO_OBJECTS) $(CLIBS)
+
+# Object file compilation rules
+.c.o:
+	$(CC) $(CONFIG) $(CFLAGS) -o $@ $<
+
+# Dependencies
+makeinfo.o: C/makeinfo.c C/getopt.h amiga_compat.h
+	$(CC) $(CONFIG) $(CFLAGS) -o makeinfo.o C/makeinfo.c
+
+getopt.o: C/getopt.c C/getopt.h
+	$(CC) $(CONFIG) $(CFLAGS) -o getopt.o C/getopt.c
+
+getopt1.o: C/getopt1.c C/getopt.h
+	$(CC) $(CONFIG) $(CFLAGS) -o getopt1.o C/getopt1.c
+
+amiga_compat.o: amiga_compat.c amiga_compat.h
+	$(CC) $(CONFIG) $(CFLAGS) -o amiga_compat.o amiga_compat.c
+
+# Alternative build using PosixLib getopt instead of bundled version
+# Uncomment these lines to use PosixLib's getopt implementation
+# makeinfo_posix: makeinfo_posix.o
+#	$(CC) $(CONFIG) -o makeinfo $(MAKEINFO_OBJECTS) $(CLIBS)
+# 
+# makeinfo_posix.o: C/makeinfo.c
+#	$(CC) $(CONFIG) $(CFLAGS) -DUSE_POSIXLIB_GETOPT -o makeinfo_posix.o C/makeinfo.c
+
+# Clean target
+clean:
+	Delete makeinfo
+	Delete *.o
+
+# Install target (copy to C:)
+install: makeinfo
+	Copy makeinfo TO /SDK/C/makeinfo
+
+# Help target
+help:
+	@echo "Available targets:"
+	@echo "  all      - Build makeinfo executable with bundled getopt"
+	@echo "  clean    - Remove object files and executable"
+	@echo "  install  - Install makeinfo to C:"
+	@echo "  help     - Show this help message"
+	@echo ""
+	@echo "Build configuration:"
+	@echo "  Compiler: $(CC)"
+	@echo "  Configuration: $(CONFIG)"
+	@echo "  Libraries: $(CLIBS)"
+	@echo ""
+	@echo "Note: This build includes Amiga compatibility layer for missing system functions"
+
+# Debug build
+debug: CFLAGS += -g
+debug: makeinfo
+
+# Release build (default)
+release: CFLAGS += -DNDEBUG
+release: makeinfo
+
+# Show build info
+info:
+	@echo "VBCC build configuration for texinfo216"
+	@echo "======================================"
+	@echo "Compiler: $(CC)"
+	@echo "Configuration: $(CONFIG)"
+	@echo "Libraries: $(CLIBS)"
+	@echo ""
+	@echo "Source files: $(MAKEINFO_SOURCES)"
+	@echo "Object files: $(MAKEINFO_OBJECTS)"

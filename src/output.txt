@@ -1,4 +1,0 @@
-Making info file `test.info' from `test.texi'.
-test.texi:8: Node `Introduction' requires a sectioning command (e.g. @top).
-test.texi:9: Unknown info command `up'.
-./test.texi:8: Node `Introduction' is missing an "Up" field.
